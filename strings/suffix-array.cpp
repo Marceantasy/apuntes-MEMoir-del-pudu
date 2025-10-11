@@ -45,3 +45,14 @@ struct SA {
         get_sa(s); get_lcp(s); // lcp is optional
     }
 };
+
+int main() { // how to use
+    string test; cin >> test;
+    vl s;
+    for (char c : test) s.push_back(c);
+    SA sa(s);
+    for (int i : sa.sa) cout << i << ":\t" << test.substr(i) << '\n';
+    repx(i,0,s.size()) {
+        printf("LCP between %d and %d is %d\n", i, i+1, sa.lcp[i]);
+    }
+}
