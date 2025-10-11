@@ -1,6 +1,7 @@
-#define invrep(i,b,a) for(int i = b; i >= a; --i)
-
-
+#define rep(i, n) for(int i = 0; i<(int)n; ++i)
+#define repx(i, a, b) for(int i = (int)a; i<(int)b; ++i)
+#define invrep(i, b, a) for(int i = (int)b; i>=a; --i)
+#define vl vector<ll>
 struct SA {
     int n; vl counts, rank, rank_, sa, sa_, lcp; // lcp is optional
     inline int gr(int i) { return i < n ? rank[i]: 0; }
