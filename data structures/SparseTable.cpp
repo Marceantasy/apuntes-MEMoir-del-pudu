@@ -4,10 +4,10 @@ struct SparseTable{
         int n = A.size();
         SP.push_back(A);
         ll maxlog = 31 - __builtin_clz(n);
-        repx(i, 1 ,maxlog+1){
-	    vl aux;
-	    rep(j, n-(1<<i)+1){
-                aux.push_back(max(SP[i-1][j],SP[i-1][j+(1<<(i-1))]));
+        repx(i, 1, maxlog+1){
+            vl aux;
+            rep(j, n-(1<<i)+1){
+                aux.push_back(min(SP[i-1][j], SP[i-1][j+(1<<(i-1))]));
             }
             SP.push_back(aux);
         }
