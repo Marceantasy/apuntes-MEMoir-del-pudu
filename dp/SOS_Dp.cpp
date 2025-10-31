@@ -1,6 +1,7 @@
 // itera sobre los subconjuntos de todos los subconjuntos en O(3^n)
 for(int mask=0; mask<(1<<n); ++mask){
-    for(int smask=mask; smask; smask=(smask-1)&mask){
+    for(int smask=mask; smask; smask=(smask-1)&mask){ // decreasing order
+    // for(int s=0;s=s-mask&mask;) // Increasing order
         ;
     }
 }

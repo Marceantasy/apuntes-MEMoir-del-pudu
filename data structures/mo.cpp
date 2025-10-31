@@ -14,7 +14,9 @@ template <class A, class R, class G, class T>
 void mo(vector<Query> &queries, vector<T> &ans, A add, R remove, G get) {
     int Q = queries.size(), B = (int)sqrt(Q);
     sort(queries.begin(), queries.end(), [&](Query &a, Query &b) {
-        return make_pair(a.l / B, a.r) < make_pair(b.l / B, b.r);
+        if (p.first / BLOCK_SIZE != q.first / BLOCK_SIZE)
+            return p < q;
+        return (p.first / BLOCK_SIZE & 1) ? (p.second < q.second) : (p.second > q.second);
     });
     ans.resize(Q);
 
