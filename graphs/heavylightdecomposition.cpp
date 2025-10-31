@@ -1,11 +1,14 @@
-template <class ST, class T, T merge(T a, T b)> struct HeavyLightDecomposition {
+template <class ST, class T, T merge(T a, T b)>
+struct HeavyLightDecomposition
+{
   vector<vector<int>> tree;
   vector<int> parent, depth, heavy, head, position, size;
   int currentPosition;
   ST segmentTree;
 
   HeavyLightDecomposition() {}
-  HeavyLightDecomposition(vector<vector<int>> &tree) : tree(tree) {
+  HeavyLightDecomposition(vector<vector<int>> &tree) : tree(tree)
+  {
     int n = tree.size();
 
     parent.resize(n);
@@ -20,11 +23,13 @@ template <class ST, class T, T merge(T a, T b)> struct HeavyLightDecomposition {
     decompose(0, 0);
   }
 
-  int dfs(int node) {
+  int dfs(int node)
+  {
     size[node] = 1;
     int maxSubtreeSize = 0;
 
-    for (int child : tree[node]) {
+    for (int child : tree[node])
+    {
       if (child == parent[node])
         continue;
 
@@ -44,7 +49,8 @@ template <class ST, class T, T merge(T a, T b)> struct HeavyLightDecomposition {
     return size[node];
   }
 
-  void decompose(int node, int nodeHead) {
+  void decompose(int node, int nodeHead)
+  {
     head[node] = nodeHead;
     position[node] = currentPosition++;
 
@@ -56,11 +62,13 @@ template <class ST, class T, T merge(T a, T b)> struct HeavyLightDecomposition {
         decompose(child, child);
   }
 
-  int query(int a, int b) {
+  int query(int a, int b)
+  {
     T answer;
     bool hasValue = false;
 
-    while (head[a] != head[b]) {
+    while (head[a] != head[b])
+    {
       if (depth[head[a]] > depth[head[b]])
         swap(a, b);
 
@@ -80,7 +88,8 @@ template <class ST, class T, T merge(T a, T b)> struct HeavyLightDecomposition {
     return hasValue ? merge(answer, last) : last;
   }
 
-  vector<T> sorted(vector<T> &values) {
+  vector<T> sorted(vector<T> &values)
+  {
     int n = values.size();
 
     vector<T> result(n);
@@ -99,3 +108,6 @@ template <class ST, class T, T merge(T a, T b)> struct HeavyLightDecomposition {
   //                      value);
   // }
 };
+
+// HeavyLightDecomposition<SegmentTree<int, merge>, int, merge> heavyLight(tree);
+// heavyLight.segmentTree = SegmentTree<int, merge>(heavyLight.sorted(values));
