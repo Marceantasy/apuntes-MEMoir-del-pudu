@@ -23,7 +23,7 @@ struct point { db x, y;
     
     // by angles but with cross
     bool half() const { return y > 0 || (y == 0 && x > 0); }
-    bool operator<(const point &p) const{
+    bool operator<(const point &p) const {
         int h1 = half(), h2 = p.half();
         return h1 != h2 ? h1 > h2 : ((*this) ^ p) > 0;
     }
