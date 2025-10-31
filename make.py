@@ -17,39 +17,51 @@ PLATFORM_TYPST = {
     "Linux": "typst-linux",
 }
 
+
+IGNORE_FOLDERS = ["pdfs"]
+
 NEWLINE = "\n"
 
 base_path = Path(__file__).parent
 
 conf: "Conf"
 
+
 def section_name(raw: str) -> str | None:
     if raw.startswith("."):
         return None
     return " ".join(w.capitalize() for w in raw.split())
 
+
 def file_name(name: str) -> str | None:
     for ext in EXT_WHITELIST:
         if name.endswith(ext):
             name = name.removesuffix(ext)
-            name = re.split("[-_\s]+", name)
+            name = re.split(r"[-_\s]+", name)
             return " ".join(w.lower() for w in name)
     return None
 
+
 def file_contents(filename: str, raw: str) -> str:
     if filename.endswith(".typ"):
-        # Treat as typst source
         return Verbatim("[\n" + raw.strip() + "\n]")
-
-    # Treat as code
     extension = ""
     if "." in filename:
         extension = filename.split(".")[-1]
-    return Verbatim("```"+extension+"\n"+raw.strip()+"\n```")
-    return Verbatim("["+"\n".join("#box(```"+extension+"\n"+line+"\n```)" for line in raw.strip().split("}\n"))+"]")
+    return Verbatim("```" + extension + "\n" + raw.strip() + "\n```")
+    return Verbatim(
+        "["
+        + "\n".join(
+            "#box(```" + extension + "\n" + line + "\n```)"
+            for line in raw.strip().split("}\n")
+        )
+        + "]"
+    )
+
 
 class Verbatim(str):
     pass
+
 
 def serialize(val: Any) -> str:
     if isinstance(val, Verbatim):
@@ -59,17 +71,24 @@ def serialize(val: Any) -> str:
     if isinstance(val, float) or isinstance(val, int):
         return str(val)
     if isinstance(val, str):
-        return '"' + val.replace("\\", "\\\\").replace("\"", "\\\"") + '"'
+        return '"' + val.replace("\\", "\\\\").replace('"', '\\"') + '"'
     if isinstance(val, list) or isinstance(val, tuple):
         return "(" + "".join(serialize(subval) + "," for subval in val) + ")"
     if not isinstance(val, dict):
-        val = {attrname: getattr(val, attrname) for attrname in dir(val) if not attrname.startswith("_")}
+        val = {
+            attrname: getattr(val, attrname)
+            for attrname in dir(val)
+            if not attrname.startswith("_")
+        }
     if not val:
         return "(:)"
     for k in val:
         if not isinstance(k, str):
             raise RuntimeError("dictionary key must be a string")
-    return "("+",".join(serialize(k) + ":" + serialize(v) for k, v in val.items())+")"
+    return (
+        "(" + ",".join(serialize(k) + ":" + serialize(v) for k, v in val.items()) + ")"
+    )
+
 
 def compose(sections: list[tuple[str, list[tuple[str, str]]]]) -> str:
     args = {
@@ -81,9 +100,12 @@ def compose(sections: list[tuple[str, list[tuple[str, str]]]]) -> str:
 #compose({serialize(args)})
     """
 
+
 def ingest() -> list[tuple[str, list[tuple[str, str]]]]:
     sections = []
     for dirname in os.listdir(base_path):
+        if dirname in IGNORE_FOLDERS:
+            continue
         dir = base_path.joinpath(dirname)
         if dir.is_dir():
             secname = section_name(dirname)
@@ -98,9 +120,13 @@ def ingest() -> list[tuple[str, list[tuple[str, str]]]]:
                 sections.append((secname, sec))
     return sections
 
+
 def compile(src: str):
     if conf.print_source:
-        print("printing source code instead of compiling because --print-source flag was received", file=sys.stderr)
+        print(
+            "printing source code instead of compiling because --print-source flag was received",
+            file=sys.stderr,
+        )
         print("typst source code:", file=sys.stderr)
         print(src)
     else:
@@ -111,8 +137,51 @@ def compile(src: str):
         typst_dir = base_path.joinpath(".typst")
         exe_path = typst_dir.joinpath(exe_name)
         out_path = base_path.joinpath(conf.out)
-        subprocess.run([exe_path, "compile", "--root", typst_dir, "--format", "pdf", "-", out_path], input=src.encode("utf-8"))
+        subprocess.run(
+            [
+                exe_path,
+                "compile",
+                "--root",
+                typst_dir,
+                "--format",
+                "pdf",
+                "-",
+                out_path,
+            ],
+            input=src.encode("utf-8"),
+        )
         print(f"wrote pdf to {conf.out}", file=sys.stderr)
+
+
+def merge_pdfs_linux(main_pdf: Path, pdf_folder: Path):
+    if not pdf_folder.exists():
+        print("folder 'pdfs/' not found, skipping merge", file=sys.stderr)
+        return
+    pdf_files = sorted(pdf_folder.glob("*.pdf"))
+    if not pdf_files:
+        print("no PDFs in 'pdfs/', nothing to add", file=sys.stderr)
+        return
+    print(
+        f"adding {len(pdf_files)} PDFs from '{pdf_folder}' to the end of the document",
+        file=sys.stderr,
+    )
+
+    temp_pdf = main_pdf.with_name("notebook_temp.pdf")
+    merged_pdf = main_pdf.with_name("notebook.pdf")
+
+    files_to_merge = [str(main_pdf)] + [str(pdf) for pdf in pdf_files]
+
+    try:
+        subprocess.run(["pdfunite", *files_to_merge, str(temp_pdf)], check=True)
+        temp_pdf.replace(merged_pdf)
+        print(f"Merged PDF generated at: {merged_pdf}", file=sys.stderr)
+    except FileNotFoundError:
+        print(
+            "⚠️ 'pdfunite' not found. Install it with 'sudo apt install poppler-utils' or 'sudo pacman -S poppler'",
+            file=sys.stderr,
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"⚠️ Error merging PDFs: {e}", file=sys.stderr)
 
 
 @dataclass
@@ -120,9 +189,7 @@ class Conf:
     out: str
     university: str
     team: str
-
     print_source: bool
-
     font_size: Verbatim
     column_count: int
     column_gutter: Verbatim
@@ -133,18 +200,30 @@ class Conf:
 
     @staticmethod
     def parse() -> "Conf":
-        p = ArgumentParser(description="Make a competitive programming notebook from source files")
+        p = ArgumentParser(
+            description="Make a competitive programming notebook from source files"
+        )
         p.add_argument("-o", "--out", required=True, help="Output file path")
-        p.add_argument("--print-source", action="store_true", help="Print Typst source instead of compiling a PDF")
-        p.add_argument("-u", "--university", default="<university>", help="University name")
+        p.add_argument(
+            "--print-source",
+            action="store_true",
+            help="Print Typst source instead of compiling a PDF",
+        )
+        p.add_argument(
+            "-u", "--university", default="<university>", help="University name"
+        )
         p.add_argument("-t", "--team", default="<team>", help="Team name")
-        p.add_argument("--font-size", default="6.984pt", help="Size of the font used for code")
+        p.add_argument(
+            "--font-size", default="6.984pt", help="Size of the font used for code"
+        )
         p.add_argument("--column-count", default="3", help="Number of columns")
         p.add_argument("--column-gutter", default="5mm", help="Space between columns")
         p.add_argument("--margin", default="10mm", help="Page margin")
         p.add_argument("--paper", default="a4", help="Page paper size")
         p.add_argument("--theme", default="", help="Code highlighting theme")
-        p.add_argument("--portrait", action="store_true", help="Whether to orient in portrait mode")
+        p.add_argument(
+            "--portrait", action="store_true", help="Whether to orient in portrait mode"
+        )
         args = sys.argv[1:]
         confpath = base_path.joinpath("makeconf")
         if confpath.is_file():
@@ -159,20 +238,19 @@ class Conf:
                 raise NameError(f"unknown commandline attribute '{attrname}'")
         return Conf(**attrs)
 
+
 def main():
     global conf
     start = time.monotonic()
-
     conf = Conf.parse()
-
     print("processing input files", file=sys.stderr)
     sections = ingest()
     src = compose(sections)
-
     print("compiling to pdf", file=sys.stderr)
     compile(src)
-    
+    merge_pdfs_linux(base_path.joinpath(conf.out), base_path.joinpath("pdfs"))
     print(f"done in {time.monotonic() - start:.2f}s", file=sys.stderr)
+
 
 if __name__ == "__main__":
     main()
