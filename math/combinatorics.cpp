@@ -37,7 +37,6 @@ void solve(){
     cout << nCr(a, b) << "\n";
 }
  
- 
 signed main(){
     iv[1] = 1;
     for(int i = 2; i<mxN; ++i){
