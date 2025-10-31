@@ -22,6 +22,17 @@ template <class T> struct Point {
     return x < point.x;
   }
 
+  int left(const Point &point) const {
+    T crossProduct = this->cross(point);
+
+    if (crossProduct > 0)
+      return 1;
+    if (crossProduct < 0)
+      return -1;
+
+    return 0;
+  }
+
   bool operator>(const Point &point) const {
     return !(*this > point) && (*this != point);
   }
@@ -61,4 +72,11 @@ template <class T> struct Point {
   }
 
   T distance(const Point &point) { return sqrt(squaredDistance(point)); }
+
+  void rotate(T radians) {
+    T newX = x * cos(radians) - y * sin(radians),
+      newY = x * sin(radians) + y * cos(radians);
+
+    x = newX, y = newY;
+  };
 };
