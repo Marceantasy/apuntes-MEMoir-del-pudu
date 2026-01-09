@@ -60,10 +60,11 @@ struct SegmentTreeLazy {
     isUpdated[i] = false;
   }
 
-  void update(int i, int left, int right, int qLeft, int qRight, T2 &value) {
-    if (left >= qLeft and right <= qRight) {
+  void update(int i, int left, int right, int queryLeft, int queryRight,
+              T2 &value) {
+    if (left >= queryLeft and right <= queryRight) {
       if (isUpdated[i])
-        pushUpdate(value, lazy[i], qLeft, qRight, left, right);
+        pushUpdate(value, lazy[i], queryLeft, queryRight, left, right);
       else
         lazy[i] = value;
 
@@ -72,14 +73,15 @@ struct SegmentTreeLazy {
 
     push(i, left, right);
 
-    if (left > qRight or right < qLeft)
+    if (left > queryRight or right < queryLeft)
       return;
 
-    if (left >= qLeft and right <= qRight)
+    if (left >= queryLeft and right <= queryRight)
       return;
 
-    update(i << 1, left, (left + right) >> 1, qLeft, qRight, value);
-    update(i << 1 | 1, (left + right) / 2 + 1, right, qLeft, qRight, value);
+    update(i << 1, left, (left + right) >> 1, queryLeft, queryRight, value);
+    update(i << 1 | 1, (left + right) / 2 + 1, right, queryLeft, queryRight,
+           value);
 
     tree[i] = merge(tree[i << 1], tree[i << 1 | 1]);
   }
@@ -88,22 +90,22 @@ struct SegmentTreeLazy {
     update(1, 0, n - 1, left, right, value);
   }
 
-  T1 query(int i, int left, int right, int qLeft, int qRight) {
+  T1 query(int i, int left, int right, int queryLeft, int queryRight) {
     push(i, left, right);
 
-    if (qLeft <= left and right <= qRight)
+    if (queryLeft <= left and right <= queryRight)
       return tree[i];
 
     int mid = (left + right) >> 1;
 
-    if (mid < qLeft)
-      return query(i << 1 | 1, mid + 1, right, qLeft, qRight);
+    if (mid < queryLeft)
+      return query(i << 1 | 1, mid + 1, right, queryLeft, queryRight);
 
-    if (mid >= qRight)
-      return query(i << 1, left, mid, qLeft, qRight);
+    if (mid >= queryRight)
+      return query(i << 1, left, mid, queryLeft, queryRight);
 
-    return merge(query(i << 1, left, mid, qLeft, qRight),
-                 query(i << 1 | 1, mid + 1, right, qLeft, qRight));
+    return merge(query(i << 1, left, mid, queryLeft, queryRight),
+                 query(i << 1 | 1, mid + 1, right, queryLeft, queryRight));
   }
 
   T1 query(int left, int right) { return query(1, 0, n - 1, left, right); }
