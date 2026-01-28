@@ -11,7 +11,7 @@ import time
 import re
 from typing import Any
 
-EXT_WHITELIST = [".cpp", ".c", ".typ", ".txt"]
+EXT_WHITELIST = [".cpp", ".c", ".typ", ".txt", ".bash"]
 PLATFORM_TYPST = {
     "Windows": "typst-windows.exe",
     "Linux": "typst-linux",
