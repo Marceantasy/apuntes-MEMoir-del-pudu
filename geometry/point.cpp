@@ -1,5 +1,9 @@
+
+
 template <class T> struct Point {
   T x, y;
+
+  const T EPS = 0;
 
   Point() {}
   Point(T x, T y) : x(x), y(y) {}
@@ -20,17 +24,6 @@ template <class T> struct Point {
       return y < point.y;
 
     return x < point.x;
-  }
-
-  int left(const Point &point) const {
-    T crossProduct = this->cross(point);
-
-    if (crossProduct > 0)
-      return 1;
-    if (crossProduct < 0)
-      return -1;
-
-    return 0;
   }
 
   bool operator>(const Point &point) const {
@@ -57,10 +50,38 @@ template <class T> struct Point {
 
   Point operator-(T value) const { return Point(x - value, y - value); }
 
+  Point operator*(T v) const { return Point(x * v, y * v); }
+
+  Point operator/(T v) const { return Point(x / v, y / v); }
+
   T cross(const Point &point) const { return x * point.y - y * point.x; }
 
   T cross(const Point &a, const Point &b) const {
     return (a - *this).cross(b - *this);
+  }
+
+  int left(const Point &point) const {
+    T crossProduct = this->cross(point);
+
+    if (abs(crossProduct) < EPS)
+      return 0;
+
+    if (crossProduct > EPS)
+      return 1;
+
+    return -1;
+  }
+
+  int left(const Point &a, const Point &b) const {
+    T crossProduct = this->cross(a, b);
+
+    if (abs(crossProduct) < EPS)
+      return 0;
+
+    if (crossProduct > EPS)
+      return 1;
+
+    return -1;
   }
 
   T squaredLength() const { return x * x + y * y; }
@@ -79,4 +100,8 @@ template <class T> struct Point {
 
     x = newX, y = newY;
   };
+
+  double angle() { return atan2(y, x); }
+
+  T dot(const Point &other) const { return x * other.x + y * other.y; }
 };
