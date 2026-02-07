@@ -44,7 +44,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         with:
           files: |
-            notebook_normal.pdf
+            notebook_full.pdf
             notebook_pda.pdf
           draft: false
           tag_name: "v${{ github.run_number }}"
