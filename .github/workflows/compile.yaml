@@ -27,7 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y fontconfig poppler-utils
+          sudo apt-get install -y fontconfig poppler-utils fonts-firacode fonts-roboto
 
       - name: Compile documents
         run: |

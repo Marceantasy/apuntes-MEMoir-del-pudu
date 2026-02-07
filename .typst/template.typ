@@ -15,9 +15,9 @@
         paper: conf.paper
       )
 
-  set text(font: "New Computer Modern")
+  set text(font: "Roboto")
 
-  show raw: set text(font: "DejaVu Sans Mono", weight: 500, size: conf.font_size)
+  show raw: set text(font: "Fira Code", weight: 500, size: conf.font_size)
 
   set raw(theme: "themes/"+conf.theme+".tmTheme") if conf.theme != ""
 
