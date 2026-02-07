@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
-from argparse import ArgumentParser
-from dataclasses import dataclass
 import os
-from pathlib import Path
 import platform
+import re
 import subprocess
 import sys
 import time
-import re
+from argparse import ArgumentParser
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 EXT_WHITELIST = [".cpp", ".c", ".typ", ".txt", ".bash"]
@@ -16,7 +16,6 @@ PLATFORM_TYPST = {
     "Windows": "typst-windows.exe",
     "Linux": "typst-linux",
 }
-
 
 IGNORE_FOLDERS = ["pdfs"]
 
@@ -45,18 +44,15 @@ def file_name(name: str) -> str | None:
 def file_contents(filename: str, raw: str) -> str:
     if filename.endswith(".typ"):
         return Verbatim("[\n" + raw.strip() + "\n]")
+
+    # remove empty lines for cpp files
+    if filename.endswith(".cpp"):
+        raw = "\n".join(line for line in raw.splitlines() if line.strip())
+
     extension = ""
     if "." in filename:
         extension = filename.split(".")[-1]
     return Verbatim("```" + extension + "\n" + raw.strip() + "\n```")
-    return Verbatim(
-        "["
-        + "\n".join(
-            "#box(```" + extension + "\n" + line + "\n```)"
-            for line in raw.strip().split("}\n")
-        )
-        + "]"
-    )
 
 
 class Verbatim(str):
@@ -137,6 +133,11 @@ def compile(src: str):
         typst_dir = base_path.joinpath(".typst")
         exe_path = typst_dir.joinpath(exe_name)
         out_path = base_path.joinpath(conf.out)
+
+        # Check if binary exists
+        if not exe_path.exists():
+            raise RuntimeError(f"Typst binary not found at {exe_path}")
+
         subprocess.run(
             [
                 exe_path,
@@ -190,13 +191,22 @@ class Conf:
     university: str
     team: str
     print_source: bool
-    font_size: Verbatim
     column_count: int
     column_gutter: Verbatim
     margin: Verbatim
     paper: str
     portrait: bool
     theme: str
+    no_index: bool
+    no_cover: bool
+    no_pdfs: bool
+    font_size: Verbatim
+    section_font_size: Verbatim
+    filename_font_size: Verbatim
+    margin_top: Verbatim
+    margin_bottom: Verbatim
+    margin_left: Verbatim
+    margin_right: Verbatim
 
     @staticmethod
     def parse() -> "Conf":
@@ -218,21 +228,63 @@ class Conf:
         )
         p.add_argument("--column-count", default="3", help="Number of columns")
         p.add_argument("--column-gutter", default="5mm", help="Space between columns")
-        p.add_argument("--margin", default="10mm", help="Page margin")
+        p.add_argument(
+            "--margin", default="10mm", help="Page margin (default for all sides)"
+        )
+        p.add_argument("--margin-top", default=None, help="Top margin")
+        p.add_argument("--margin-bottom", default=None, help="Bottom margin")
+        p.add_argument("--margin-left", default=None, help="Left margin")
+        p.add_argument("--margin-right", default=None, help="Right margin")
+
         p.add_argument("--paper", default="a4", help="Page paper size")
         p.add_argument("--theme", default="", help="Code highlighting theme")
         p.add_argument(
             "--portrait", action="store_true", help="Whether to orient in portrait mode"
         )
+        p.add_argument(
+            "--no-index", action="store_true", help="Do not print the table of contents"
+        )
+        p.add_argument(
+            "--no-cover",
+            action="store_true",
+            help="Do not print the cover (title/team)",
+        )
+        p.add_argument(
+            "--no-pdfs",
+            action="store_true",
+            help="Do not merge PDFs from the pdfs folder",
+        )
+        p.add_argument(
+            "--filename-font-size",
+            default="10pt",
+            help="Font size for file names (e.g., 12pt)",
+        )
+        p.add_argument(
+            "--section-font-size",
+            default="12pt",
+            help="Font size for section/folder titles (e.g., 12pt)",
+        )
+
         args = sys.argv[1:]
         confpath = base_path.joinpath("makeconf")
         if confpath.is_file():
             extra = confpath.read_text().splitlines()
             args = extra + args
         parsed = p.parse_args(args)
+
+        if parsed.margin_top is None:
+            parsed.margin_top = parsed.margin
+        if parsed.margin_bottom is None:
+            parsed.margin_bottom = parsed.margin
+        if parsed.margin_left is None:
+            parsed.margin_left = parsed.margin
+        if parsed.margin_right is None:
+            parsed.margin_right = parsed.margin
+
         attrs = {}
         for name, ty in Conf.__annotations__.items():
             attrs[name] = ty(getattr(parsed, name))
+
         for attrname in dir(parsed):
             if not attrname.startswith("_") and attrname not in Conf.__annotations__:
                 raise NameError(f"unknown commandline attribute '{attrname}'")
@@ -247,8 +299,14 @@ def main():
     sections = ingest()
     src = compose(sections)
     print("compiling to pdf", file=sys.stderr)
+
     compile(src)
-    merge_pdfs_linux(base_path.joinpath(conf.out), base_path.joinpath("pdfs"))
+
+    if not conf.no_pdfs:
+        merge_pdfs_linux(base_path.joinpath(conf.out), base_path.joinpath("pdfs"))
+    else:
+        print("skipping PDF merge because --no-pdfs flag was received", file=sys.stderr)
+
     print(f"done in {time.monotonic() - start:.2f}s", file=sys.stderr)
 
 

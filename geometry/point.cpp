@@ -13,6 +13,8 @@ template <class T> struct Point {
     return is;
   }
 
+  bool operator=(const Point &point) const { return Point(x, y); }
+
   bool operator==(const Point &point) const {
     return point.x == x && point.y == y;
   }

@@ -24,21 +24,28 @@ jobs:
           sudo install -m 755 typst /usr/local/bin/
           typst --version
 
-      - name: Install dependencies (fontconfig and poppler-utils)
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y fontconfig
-          sudo apt install poppler-utils
+          sudo apt-get install -y fontconfig poppler-utils
 
-      - name: Compile document
+      - name: Compile documents
         run: |
+          # Full compilation
           python make.py
+          mv notebook.pdf notebook_full.pdf
+
+          # Minified compilation for PDA
+          python make.py --no-cover --no-index --no-pdfs --filename-font-size=10pt --section-font-size=12pt --margin=2.5mm --margin-top=10mm
+          mv notebook.pdf notebook_pda.pdf
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         if: github.ref == 'refs/heads/main'
         with:
-          files: notebook.pdf
+          files: |
+            notebook_normal.pdf
+            notebook_pda.pdf
           draft: false
           tag_name: "v${{ github.run_number }}"
           name: "Handbook v${{ github.run_number }}"
