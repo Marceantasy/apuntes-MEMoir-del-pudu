@@ -56,6 +56,8 @@ template <class T> struct Point {
 
   Point operator/(T v) const { return Point(x / v, y / v); }
 
+  T dot(const Point &other) const { return x * other.x + y * other.y; }
+
   T cross(const Point &point) const { return x * point.y - y * point.x; }
 
   T cross(const Point &a, const Point &b) const {
@@ -105,5 +107,12 @@ template <class T> struct Point {
 
   double angle() { return atan2(y, x); }
 
-  T dot(const Point &other) const { return x * other.x + y * other.y; }
+  bool isUpperHull() const { return y > 0 || (y == 0 && x > 0); }
+
+  bool angle_lt(const Point &other) const {
+    if (isUpperHull() != other.isUpperHull())
+      return isUpperHull();
+
+    return left(other) == 1; // cross(other)> 0
+  }
 };
