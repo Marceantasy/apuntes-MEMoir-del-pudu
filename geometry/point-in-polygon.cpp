@@ -2,7 +2,6 @@
 template <class T>
 int pointInPolygon(vector<Point<T>> &polygon, Point<T> point) {
   int count = 0;
-  bool isInBoundary = false;
 
   int n = polygon.size();
 
@@ -30,9 +29,6 @@ int pointInPolygon(vector<Point<T>> &polygon, Point<T> point) {
 
     count += left < right;
   }
-
-  if (isInBoundary)
-    return 2;
 
   if (count % 2 == 0)
     return 0;
