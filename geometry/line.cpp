@@ -9,6 +9,11 @@ template <class T> struct Line {
 
   bool operator<(const Line &other) const { return angle < other.angle; }
 
+ ld squaredDistance(Point point) {
+    ld cross = (b - a).cross(point - a);
+    return cross * cross / (ld)(b - a).squaredLength();
+  };
+
   pair<int, pair<Point<T>, Point<T>>> intersect(const Line &other) const {
     Point<T> ab = b - a;
     Point<T> cd = other.b - other.a;
