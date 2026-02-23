@@ -13,19 +13,14 @@ struct TwoSatSolver {
     }
     void dfs1(int v) {
         used[v] = true;
-        for (int u : adj[v]) {
-            if (!used[u])
-                dfs1(u);
-        }
+        for (int u : adj[v]) if (!used[u]) dfs1(u);
         order.push_back(v);
     }
 
     void dfs2(int v, int cl) {
         comp[v] = cl;
-        for (int u : adj_t[v]) {
-            if (comp[u] == -1)
-                dfs2(u, cl);
-        }
+        for (int u : adj_t[v])  if (comp[u] == -1) dfs2(u, cl);
+        
     }
 
     bool solve_2SAT() {
