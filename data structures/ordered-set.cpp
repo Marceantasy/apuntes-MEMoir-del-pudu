@@ -15,3 +15,6 @@ template <typename T> void erase(ordered_multiset<T> &values, T value) {
   auto it = values.find_by_order(rank);
   values.erase(it);
 }
+
+// find_by_order(i) -> iterator to ith element
+// order_of_key(k) -> position (int) of lower_bound of k
