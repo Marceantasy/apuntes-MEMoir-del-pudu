@@ -203,6 +203,8 @@ class Conf:
     font_size: Verbatim
     section_font_size: Verbatim
     filename_font_size: Verbatim
+    math_font_size: Verbatim
+    math_section_text_font_size: Verbatim
     margin_top: Verbatim
     margin_bottom: Verbatim
     margin_left: Verbatim
@@ -263,6 +265,16 @@ class Conf:
             "--section-font-size",
             default="12pt",
             help="Font size for section/folder titles (e.g., 12pt)",
+        )
+        p.add_argument(
+            "--math-font-size",
+            default="11pt",
+            help="Font size for math formulas (e.g., 11pt)",
+        )
+        p.add_argument(
+            "--math-section-text-font-size",
+            default="11pt",
+            help="Font size for text content in math sections (e.g., 11pt)",
         )
 
         args = sys.argv[1:]

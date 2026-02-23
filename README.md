@@ -17,7 +17,7 @@ python make.py
 Run `make.py` for minified notebook:
 
 ```sh
-python make.py --no-cover --no-index --no-pdfs --filename-font-size=10pt --section-font-size=12pt --margin=2.5mm --margin-top=10mm
+python make.py --no-cover --no-index --no-pdfs --filename-font-size=10pt --section-font-size=12pt --margin=2.5mm --margin-top=10mm --math-font-size=8pt --math-section-text-font-size=7pt
 ```
 
 # Notes

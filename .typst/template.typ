@@ -62,11 +62,17 @@
 
   show heading.where(level: 2): set text(size: conf.filename_font_size)
 
+  // Set default font size for math content
+  show math.equation: set text(size: conf.math_font_size)
+
   let codeblock(title, code) = [
     == #title
 
     #block(
-      code,
+      {
+        set text(size: conf.math_section_text_font_size)
+        code
+      },
       stroke: 1pt,
       radius: 1mm,
       width: 100%,

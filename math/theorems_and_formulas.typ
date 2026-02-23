@@ -52,7 +52,7 @@ Other useful formulas/forms
 
 $sum_(d|n) mu(d) = [n = 1]$ (very useful)
 
-#text(size: 10pt, block(breakable: false)[
+#text(block(breakable: false)[
 $g(n) = sum_(1 <= m <= n) f(floor(n/m)) <=> f(n) = sum_(1 <= m <= n) mu(m) g(floor(n/m))$
 ])
 
@@ -90,7 +90,7 @@ $ B(p^m+n) equiv m B(n)+B(n+1) quad (mod p) $
 
 $ C_n=1/(n+1) binom(2n, n) = binom(2n, n)-binom(2n, n+1) = (2n)!/((n+1)! n!) $
 $ C_0=1, quad C_(n+1) = (2(2n+1))/(n+2) C_n, quad C_(n+1)=sum C_i C_(n-i) $
-#text(size: 10pt)[
+#text()[
 $ C_n = 1, 1, 2, 5, 14, 42, 132, 429, 1430, 4862, 16796, 58786, dots $
 - sub-diagonal monotone paths in an $n times n$ grid.
 - strings with $n$ pairs of parenthesis, correctly nested.
