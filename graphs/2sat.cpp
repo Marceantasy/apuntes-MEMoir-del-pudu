@@ -16,26 +16,22 @@ struct TwoSatSolver {
         for (int u : adj[v]) if (!used[u]) dfs1(u);
         order.push_back(v);
     }
-
     void dfs2(int v, int cl) {
         comp[v] = cl;
         for (int u : adj_t[v])  if (comp[u] == -1) dfs2(u, cl);
-        
     }
 
     bool solve_2SAT() {
         order.clear();
         used.assign(n_vertices, false);
         for (int i = 0; i < n_vertices; ++i) {
-            if (!used[i])
-                dfs1(i);
+            if (!used[i]) dfs1(i);
         }
 
         comp.assign(n_vertices, -1);
         for (int i = 0, j = 0; i < n_vertices; ++i) {
             int v = order[n_vertices - i - 1];
-            if (comp[v] == -1)
-                dfs2(v, j++);
+            if (comp[v] == -1) dfs2(v, j++);
         }
 
         assignment.assign(n_vars, false);
@@ -49,8 +45,7 @@ struct TwoSatSolver {
 
     void add_disjunction(int a, bool na, int b, bool nb) {
         // na and nb signify whether a and b are to be negated 
-        a = 2 * a ^ na;
-        b = 2 * b ^ nb;
+        a = 2 * a ^ na; b = 2 * b ^ nb;
         int neg_a = a ^ 1;
         int neg_b = b ^ 1;
         adj[neg_a].push_back(b);
