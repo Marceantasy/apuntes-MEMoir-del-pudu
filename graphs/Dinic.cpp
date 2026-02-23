@@ -17,7 +17,7 @@
 // se une un nodo x de la izquierda a y de la derecha si existe camino de x a y
 // anticadena = conjunto de nodos tal que no hay camino entre ellos
 // cadena = conjunto de nodos tal que de cada uno puedo llegar al siguiente
-// anticadena de mayor tamaño = minima cantidad de anticadenas que cubren todos los nodos
+// anticadena de mayor tamaño = minima cantidad de cadenas que cubren todos los nodos
 // min chain cover = conseguimos el max matching, si existe x -> y, y -> z, en el matching
 //        consideramos x -> y -> z como una sola cadena (con dsu o un vector posiblemente)
 // Anticadena maxima = hacemos min vertex cover y tomamos los nodos que no tienen ninguna 
