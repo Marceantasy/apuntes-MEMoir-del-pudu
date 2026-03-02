@@ -3,8 +3,6 @@
 template <class T> struct Point {
   T x, y;
 
-  const T EPS = 0;
-
   Point() {}
   Point(T x, T y) : x(x), y(y) {}
 
@@ -13,48 +11,12 @@ template <class T> struct Point {
     return is;
   }
 
-  bool operator=(const Point &point) const { return Point(x, y); }
-
-  bool operator==(const Point &point) const {
-    return point.x == x && point.y == y;
-  }
-
-  bool operator!=(const Point &point) const { return !(point == *this); }
-
   bool operator<(const Point &point) const {
     if (x == point.x)
       return y < point.y;
 
     return x < point.x;
   }
-
-  bool operator>(const Point &point) const {
-    return !(*this > point) && (*this != point);
-  }
-
-  bool operator>=(const Point &point) {
-    return *this > point || *this == point;
-  }
-
-  bool operator<=(const Point &point) {
-    return *this < point || *this == point;
-  }
-
-  Point operator+(const Point &point) const {
-    return Point(x + point.x, y + point.y);
-  }
-
-  Point operator-(const Point &point) const {
-    return Point(x - point.x, y - point.y);
-  }
-
-  Point operator+(T value) const { return Point(x + value, y + value); }
-
-  Point operator-(T value) const { return Point(x - value, y - value); }
-
-  Point operator*(T v) const { return Point(x * v, y * v); }
-
-  Point operator/(T v) const { return Point(x / v, y / v); }
 
   T dot(const Point &other) const { return x * other.x + y * other.y; }
 
