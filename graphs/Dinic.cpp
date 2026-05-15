@@ -29,6 +29,11 @@
 // c'(v, t') = sum(d(v, w) for w in V) \forall arista (v, t')
 // c'(u, v) = c(u, v) - d(u, v) \forall aristas antiguas
 // c'(t, s) = INF (el flujo por esta arista es el flujo real)*/
+
+#define ll long long
+#define vl vector<ll>
+#define vi vector<int>
+
 class Dinic{
     struct Edge { int to, rev; ll f, c; };
     int n, t_; vector<vector<Edge>> G;
